@@ -3,23 +3,26 @@ import 'package:flutter/material.dart';
 class TextFields extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
+  bool? obscure;
 
-  const TextFields({
+   TextFields({
     super.key,
     required this.hintText,
-    required this.controller
+    required this.controller,
+    this.obscure,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+obscureText: obscure??false,
       controller: controller,
       decoration: InputDecoration(
         hintStyle: TextStyle(
-          color: Colors.grey.shade700
+          color: Theme.of(context).colorScheme.primary
         ),
         hintText: hintText,
-        fillColor: Colors.white30,
+        fillColor: Theme.of(context).colorScheme.secondary,
         filled: true,
         enabledBorder: OutlineInputBorder(
           borderRadius: const BorderRadius.all(

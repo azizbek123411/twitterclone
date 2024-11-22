@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:twitterclone/ui/pages/drawer_screens/drawer.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -13,7 +14,16 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       drawer: MyDrawer(),
-     appBar: AppBar(),
+      appBar: AppBar(
+        foregroundColor: Theme.of(context).colorScheme.primary,
+        centerTitle: true,
+        title: Text(
+          'home'.toUpperCase(),
+          style: const TextStyle(
+            letterSpacing: 3,
+          ),
+        ),
+      ),
     );
   }
 }

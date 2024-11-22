@@ -1,27 +1,54 @@
-import 'package:flutter/material.dart';
-import 'package:twitterclone/ui/widgets/textfields.dart';
-import 'package:twitterclone/utils/screen_utils.dart';
+import 'dart:developer';
 
-import '../../../utils/app_padding.dart';
+import 'package:flutter/material.dart';
+import 'package:twitterclone/service/auth/auth_service.dart';
+import 'package:twitterclone/ui/widgets/loading_circle.dart';
+import 'package:twitterclone/ui/widgets/textfields.dart';
+import 'package:twitterclone/utility/screen_utils.dart';
+
+import '../../../utility/app_padding.dart';
 import '../../widgets/buttons.dart';
 
-
 class LoginPage extends StatefulWidget {
-void Function() onTap;
-   LoginPage({super.key,required this.onTap});
+  final void Function()? onTap;
+
+  LoginPage({super.key, required this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _auth = AuthService();
+
+  void login() async {
+
+    showLoading(context);
+
+    try {
+      await _auth.loginEmailPassword(
+        emailController.text,
+        passwordController.text,
+      );
+
+      if(mounted) hideLoading(context);
+
+
+    } catch (e) {
+      if(mounted) hideLoading(context);
+      log(
+        e.toString(),
+      );
+    }
+  }
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Padding(
         padding: Dis.all(10),
         child: Center(
@@ -30,8 +57,8 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(
-                Icons.messenger_rounded,
-                color: Theme.of(context).colorScheme.secondary,
+                Icons.lock,
+                color: Theme.of(context).colorScheme.primary,
                 size: 60,
               ),
               const SizedBox(
@@ -40,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 "Welcome back!!",
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 20,
                 ),
               ),
@@ -55,6 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                 height: 10.h,
               ),
               TextFields(
+                obscure: true,
                 hintText: 'Enter your password',
                 controller: passwordController,
               ),
@@ -64,10 +92,10 @@ class _LoginPageState extends State<LoginPage> {
               Buttons(
                 color: Theme.of(context).colorScheme.secondary,
                 h: 50.h,
-                w: 200.w,
-                title: 'Log In',
-                r: 20,
-                onTap: () {},
+                w: double.infinity,
+                title: 'Login',
+                r: 10,
+                onTap:login,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

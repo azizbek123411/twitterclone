@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:twitterclone/service/auth/auth_service.dart';
 import 'package:twitterclone/ui/pages/drawer_screens/settings.dart';
 import 'package:twitterclone/ui/widgets/drawer_tile.dart';
-import 'package:twitterclone/utils/app_padding.dart';
-import 'package:twitterclone/utils/screen_utils.dart';
+import 'package:twitterclone/utility/screen_utils.dart';
+
+import '../../../utility/app_padding.dart';
+
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+   MyDrawer({super.key});
+
+  final _auth=AuthService();
+
+  void logout(){
+    _auth.logout();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +65,9 @@ class MyDrawer extends StatelessWidget {
               text: 'Search',
               icon: Icons.search_sharp,
             ),
+            const Spacer(),
             DrawerTile(
-              onTap: () {},
+              onTap: logout,
               text: 'Log Out',
               icon: Icons.logout,
             ),

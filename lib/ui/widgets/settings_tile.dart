@@ -12,9 +12,20 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return      ListTile(
-      title: Text(text,style: const TextStyle(fontSize: 20),),
-      trailing: action
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+          title: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          trailing: action),
     );
   }
 }

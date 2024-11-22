@@ -32,7 +32,8 @@ class Buttons extends StatelessWidget {
         ),
         child: Center(
           child: Text(title,style: const TextStyle(
-            fontSize: 18,
+            fontSize: 20,
+            fontWeight: FontWeight.bold
           ),),
         ),
       ),
