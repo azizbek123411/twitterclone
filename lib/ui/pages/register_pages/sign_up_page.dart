@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:twitterclone/service/auth/auth_service.dart';
+import 'package:twitterclone/service/database/database_service.dart';
 import 'package:twitterclone/ui/widgets/loading_circle.dart';
 import 'package:twitterclone/utility/screen_utils.dart';
 
@@ -20,6 +21,7 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _auth = AuthService();
+  final _db = DatabaseService();
 
   final emailController = TextEditingController();
   final usernameController = TextEditingController();
@@ -35,6 +37,10 @@ class _SignUpPageState extends State<SignUpPage> {
           passwordController.text,
         );
         if (mounted) hideLoading(context);
+        await _db.saveUserInfoInFirebase(
+          name: emailController.text,
+          email: passwordController.text,
+        );
       } catch (e) {
         if (mounted) hideLoading(context);
 

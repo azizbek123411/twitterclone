@@ -21,8 +21,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _auth = AuthService();
 
-  void login() async {
 
+  void login() async {
     showLoading(context);
 
     try {
@@ -31,11 +31,18 @@ class _LoginPageState extends State<LoginPage> {
         passwordController.text,
       );
 
-      if(mounted) hideLoading(context);
-
-
+      if (mounted) hideLoading(context);
     } catch (e) {
-      if(mounted) hideLoading(context);
+      if (mounted) hideLoading(context);
+      if (mounted) {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                  title: Text(
+                    e.toString(),
+                  ),
+                ));
+      }
       log(
         e.toString(),
       );
@@ -95,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                 w: double.infinity,
                 title: 'Login',
                 r: 10,
-                onTap:login,
+                onTap: login,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
