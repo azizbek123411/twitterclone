@@ -24,7 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final _db = DatabaseService();
 
   final emailController = TextEditingController();
-  final usernameController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -38,8 +38,8 @@ class _SignUpPageState extends State<SignUpPage> {
         );
         if (mounted) hideLoading(context);
         await _db.saveUserInfoInFirebase(
-          name: emailController.text,
-          email: passwordController.text,
+          name: nameController.text,
+          email: emailController.text,
         );
       } catch (e) {
         if (mounted) hideLoading(context);
@@ -95,8 +95,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 height: 30.h,
               ),
               TextFields(
-                hintText: 'Enter username',
-                controller: usernameController,
+                hintText: 'Enter name',
+                controller: nameController,
               ),
               SizedBox(
                 height: 10.h,

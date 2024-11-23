@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:twitterclone/models/user.dart';
+import 'package:twitterclone/service/auth/auth_service.dart';
 
 class DatabaseService {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
-  Future<void> saveUserInfoInFirebase(
-      {required String name, required String email}) async {
+  Future<void> saveUserInfoInFirebase({required String name, required String email}) async {
     String uid = _auth.currentUser!.uid;
 
     String username = email.split('@')[0];
@@ -34,6 +34,17 @@ class DatabaseService {
     }catch(e){
       print(e);
       return null;
+    }
+  }
+
+  Future<void> updateUserBioInFirebase(String bio)async{
+
+    String uid=AuthService().getCurrentUid();
+
+    try{
+      await _db.collection('Users').doc(uid).update({'bio':bio});
+    }catch(e){
+      print(e);
     }
   }
 }

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:twitterclone/service/auth/auth_service.dart';
+import 'package:twitterclone/ui/pages/drawer_screens/profile.dart';
 import 'package:twitterclone/ui/pages/drawer_screens/settings.dart';
 import 'package:twitterclone/ui/widgets/drawer_tile.dart';
 import 'package:twitterclone/utility/screen_utils.dart';
 
 import '../../../utility/app_padding.dart';
 
-
 class MyDrawer extends StatelessWidget {
-   MyDrawer({super.key});
+  MyDrawer({super.key});
 
-  final _auth=AuthService();
+  final _auth = AuthService();
 
-  void logout(){
+  void logout() {
     _auth.logout();
   }
 
@@ -44,7 +44,16 @@ class MyDrawer extends StatelessWidget {
               icon: Icons.home_filled,
             ),
             DrawerTile(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(
+                      uid: _auth.getCurrentUid(),
+                    ),
+                  ),
+                );
+              },
               text: 'Profile',
               icon: Icons.person,
             ),
