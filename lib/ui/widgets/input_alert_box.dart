@@ -40,8 +40,36 @@ class MyInputAlertBox extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          fillColor: Theme.of(context).colorScheme.secondary,
+          filled: true,
+          counterStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            textEditingController.clear();
+          },
+          child: const Text(
+            'Cancel',
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            onPressed!();
+            textEditingController.clear();
+          },
+          child: Text(onPressedText),
+        ),
+      ],
     );
   }
 }

@@ -18,7 +18,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final textEditingController=TextEditingController();
+  final bioTextController = TextEditingController();
   late final databaseProvider =
       Provider.of<DatabaseProvider>(context, listen: false);
 
@@ -44,12 +44,24 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       builder: (context) => MyInputAlertBox(
-        textEditingController: textEditingController,
+        textEditingController: bioTextController,
         hintText: 'Edit bio',
-        onPressed: (){},
+        onPressed: saveBio,
         onPressedText: 'Save',
       ),
     );
+  }
+
+  Future<void>saveBio()async{
+    setState(() {
+      isLoading=true;
+    });
+
+    await databaseProvider.updateBio(bioTextController.text);
+    await loadUser();
+    setState(() {
+      isLoading=false;
+    });
   }
 
   @override
@@ -113,7 +125,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ))
               ],
             ),
-            MyBioBox(text: isLoading ? '...' : user!.bio),
+            MyBioBox(text: isLoading ? '...' : user!.bio,),
           ],
         ),
       ),

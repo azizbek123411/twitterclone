@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:twitterclone/service/database/database_provider.dart';
 import 'package:twitterclone/ui/pages/drawer_screens/drawer.dart';
+import 'package:twitterclone/ui/widgets/input_alert_box.dart';
+
+import '../../../models/post.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,6 +14,43 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final listeningProvider = Provider.of<DatabaseProvider>(context);
+
+  late final databaseProvider = Provider.of<DatabaseProvider>(
+    context,
+    listen: false,
+  );
+
+  Future<void> loadAllPosts() async {
+    await databaseProvider.loadAllPosts();
+  }
+
+  final _messageController = TextEditingController();
+
+  void _openPostMessageBox() {
+    showDialog(
+      context: context,
+      builder: (context) => MyInputAlertBox(
+        textEditingController: _messageController,
+        hintText: "Type your thoughts..",
+        onPressed: () async {
+          await postMessage(_messageController.text);
+        },
+        onPressedText: 'Post',
+      ),
+    );
+  }
+
+  Future<void> postMessage(String message) async {
+    await databaseProvider.postMessage(message);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAllPosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +66,29 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+      body: _buildAllPosts(listeningProvider.allPosts),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openPostMessageBox,
+        child: const Icon(Icons.add),
+      ),
     );
+  }
+
+  Widget _buildAllPosts(List<Post> posts) {
+    return posts.isEmpty
+        ? const Center(
+            child: Text('Nothing here...'),
+          )
+        : ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return Container(
+                child: Text(
+                  post.message,
+                ),
+              );
+            },
+          );
   }
 }
