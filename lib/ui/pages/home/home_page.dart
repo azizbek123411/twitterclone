@@ -4,6 +4,7 @@ import 'package:twitterclone/service/database/database_provider.dart';
 import 'package:twitterclone/ui/pages/drawer_screens/drawer.dart';
 import 'package:twitterclone/ui/widgets/input_alert_box.dart';
 import 'package:twitterclone/ui/widgets/my_post_tile.dart';
+import 'package:twitterclone/utility/navigate_pages.dart';
 
 import '../../../models/post.dart';
 
@@ -84,7 +85,13 @@ class _HomePageState extends State<HomePage> {
             itemCount: posts.length,
             itemBuilder: (context, index) {
               final post = posts[index];
-              return MyPostTile(post: post);
+              return MyPostTile(
+                post: post,
+                onUserTap: () => goUserPage(
+                  context,
+                  post.uid,
+                ), onPostTap: ()=>goPostPage(context,post),
+              );
             },
           );
   }

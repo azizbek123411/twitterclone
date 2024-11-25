@@ -7,6 +7,7 @@ import 'package:twitterclone/ui/widgets/input_alert_box.dart';
 import 'package:twitterclone/ui/widgets/my_bio_box.dart';
 import 'package:twitterclone/ui/widgets/my_post_tile.dart';
 import 'package:twitterclone/utility/app_padding.dart';
+import 'package:twitterclone/utility/navigate_pages.dart';
 import 'package:twitterclone/utility/screen_utils.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -147,7 +148,9 @@ class _ProfilePageState extends State<ProfilePage> {
             height: 30.h,
           ),
           Padding(
-            padding: Dis.only(lr: 20.w,),
+            padding: Dis.only(
+              lr: 20.w,
+            ),
             child: Text(
               'Your Posts',
               style: TextStyle(
@@ -162,17 +165,26 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 )
               : Padding(
-                padding: Dis.only(lr: 10.w,),
-                child: ListView.builder(
+                  padding: Dis.only(
+                    lr: 10.w,
+                  ),
+                  child: ListView.builder(
                     itemCount: allUserPosts.length,
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       final post = allUserPosts[index];
-                      return MyPostTile(post: post);
+                      return MyPostTile(
+                        post: post,
+                        onUserTap: () {},
+                        onPostTap: () => goPostPage(
+                          context,
+                          post,
+                        ),
+                      );
                     },
                   ),
-              ),
+                ),
         ],
       ),
     );
