@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:twitterclone/service/database/database_provider.dart';
 import 'package:twitterclone/ui/pages/drawer_screens/drawer.dart';
 import 'package:twitterclone/ui/widgets/input_alert_box.dart';
+import 'package:twitterclone/ui/widgets/my_post_tile.dart';
 
 import '../../../models/post.dart';
 
@@ -83,11 +84,7 @@ class _HomePageState extends State<HomePage> {
             itemCount: posts.length,
             itemBuilder: (context, index) {
               final post = posts[index];
-              return Container(
-                child: Text(
-                  post.message,
-                ),
-              );
+              return MyPostTile(post: post);
             },
           );
   }

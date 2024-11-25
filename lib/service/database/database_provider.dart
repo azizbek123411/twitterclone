@@ -28,4 +28,8 @@ class DatabaseProvider extends ChangeNotifier {
     notifyListeners();
 
   }
+
+  List<Post> filterUserPosts(String uid){
+    return _allPosts.where((post)=>post.uid==uid).toList();
+  }
 }

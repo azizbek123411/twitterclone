@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:twitterclone/utility/app_padding.dart';
+import 'package:twitterclone/utility/screen_utils.dart';
 
 class MyBioBox extends StatelessWidget {
   String text;
@@ -9,6 +10,7 @@ class MyBioBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: Dis.only(lr: 20.w,),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondary,
         borderRadius: BorderRadius.circular(16),
