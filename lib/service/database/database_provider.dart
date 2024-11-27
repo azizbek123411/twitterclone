@@ -25,17 +25,66 @@ class DatabaseProvider extends ChangeNotifier {
   Future<void> loadAllPosts() async {
     final allPosts = await _db.getAllPostsFromFirebase();
     _allPosts = allPosts;
+    initializeLikeMap();
+
     notifyListeners();
-
   }
 
-  List<Post> filterUserPosts(String uid){
-    return _allPosts.where((post)=>post.uid==uid).toList();
+  List<Post> filterUserPosts(String uid) {
+    return _allPosts.where((post) => post.uid == uid).toList();
   }
 
-
-  Future<void>deletePost(String postId)async{
+  Future<void> deletePost(String postId) async {
     await _db.deletePostFromFirebase(postId);
     await loadAllPosts();
   }
+
+  Map<String, int> _likeCounts = {};
+
+  List<String> _likedPosts = [];
+
+  bool isPostLikedByCurrentUser(String postId)=> _likedPosts.contains(postId);
+  int getLikeCount(String postId)=>_likeCounts[postId]??0;
+
+  void initializeLikeMap() {
+    final currentUserId = _auth.getCurrentUid();
+
+    _likedPosts.clear();
+
+    for (var post in _allPosts) {
+      _likeCounts[post.id] = post.likeCount;
+
+      if (post.likedBy.contains(currentUserId)) {
+        _likedPosts.add(post.id);
+      }
+    }
+  }
+
+
+  Future<void> toggleLike(String postId)async{
+
+
+    final likedPostOriginal=_likedPosts;
+    final likeCountsOriginal=_likeCounts;
+
+    if(_likedPosts.contains(postId)){
+      _likedPosts.remove(postId);
+      _likeCounts[postId]=(_likeCounts[postId]??0)-1;
+    }else{
+      _likedPosts.add(postId);
+      _likeCounts[postId]=(_likeCounts[postId]??0)+1;
+    }
+    notifyListeners();
+
+    try{
+      await _db.toggleLikeInFirebase(postId);
+    }
+    catch(e){
+      _likedPosts=likedPostOriginal;
+      _likeCounts=likeCountsOriginal;
+      notifyListeners();
+    }
+  }
+
+
 }
