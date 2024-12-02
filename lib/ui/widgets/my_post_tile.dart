@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:twitterclone/models/post.dart';
 import 'package:twitterclone/service/auth/auth_service.dart';
 import 'package:twitterclone/service/database/database_provider.dart';
+import 'package:twitterclone/ui/widgets/input_alert_box.dart';
 import 'package:twitterclone/utility/app_padding.dart';
 import 'package:twitterclone/utility/screen_utils.dart';
 
@@ -25,7 +26,13 @@ class _MyPostTileState extends State<MyPostTile> {
   late final listeningProvider = Provider.of<DatabaseProvider>(context);
   late final databaseProvider =
       Provider.of<DatabaseProvider>(context, listen: false);
+  final commentController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadComments();
+  }
   void _showOptions() {
     String currentId = AuthService().getCurrentUid();
     final bool isOwnPost = widget.post.uid == currentId;
@@ -88,6 +95,34 @@ class _MyPostTileState extends State<MyPostTile> {
         });
   }
 
+  void _openNewCommentBox() {
+    showDialog(
+      context: context,
+      builder: (context) => MyInputAlertBox(
+        textEditingController: commentController,
+        hintText: 'Comment',
+        onPressed: () async {
+          await addComment();
+        },
+        onPressedText: 'Post',
+      ),
+    );
+  }
+
+  Future<void> addComment() async {
+    if (commentController.text.trim().isEmpty) return;
+
+    try {
+      await databaseProvider.addComment(
+          widget.post.id, commentController.text.trim());
+    } catch (e) {
+      print(e);
+    }
+  }
+  Future<void> _loadComments()async{
+    await databaseProvider.loadComments(widget.post.id);
+  }
+
   void _toggleLikePost() async {
     try {
       await databaseProvider.toggleLike(widget.post.id);
@@ -102,6 +137,8 @@ class _MyPostTileState extends State<MyPostTile> {
       widget.post.id,
     );
     int likeCount = listeningProvider.getLikeCount(widget.post.id);
+    int commentLength = listeningProvider.getComments(widget.post.id).length;
+
     return GestureDetector(
       onTap: widget.onPostTap,
       child: Container(
@@ -177,13 +214,26 @@ class _MyPostTileState extends State<MyPostTile> {
                         ),
                 ),
                 Text(
-                  likeCount.toString(),
+                  likeCount == 0 ? '' : likeCount.toString(),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                )
+                ),
+                IconButton(
+                  onPressed: _openNewCommentBox,
+                  icon: Icon(
+                    Icons.comment_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Text(
+                  commentLength != 0 ? commentLength.toString() : '',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:twitterclone/service/auth/auth_service.dart';
 import 'package:twitterclone/service/database/database_service.dart';
 
+import '../../models/comment.dart';
 import '../../models/post.dart';
 import '../../models/user.dart';
 
@@ -86,5 +87,22 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
+
+  final Map<String,List<Comment>> _comments={};
+  List<Comment> getComments(String postId)=>_comments[postId]??[];
+  Future<void>loadComments(String postId)async{
+    final allComments=await _db.getCommentFromFirebase(postId);
+    _comments[postId]=allComments;
+    notifyListeners();
+  }
+
+  Future<void> addComment(String postId,message)async{
+    await _db.addCommentInFirebase(postId, message);
+    await loadComments(postId);
+  }
+  Future<void> deleteComment(String commentId,postId)async{
+    await _db.deleteCommentInFirebase(commentId);
+    await loadComments(postId);
+  }
 
 }

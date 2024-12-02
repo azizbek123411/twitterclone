@@ -4,6 +4,8 @@ import 'package:twitterclone/models/post.dart';
 import 'package:twitterclone/models/user.dart';
 import 'package:twitterclone/service/auth/auth_service.dart';
 
+import '../../models/comment.dart';
+
 class DatabaseService {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
@@ -114,6 +116,46 @@ class DatabaseService {
       });
     } catch (e) {
       print(e);
+    }
+  }
+
+  Future<void> addCommentInFirebase(String postId, message) async {
+    try {
+      String uid = _auth.currentUser!.uid;
+      UserProfile? user = await getUserFromFirebase(uid);
+      Comment newComment = Comment(
+        timestamp: Timestamp.now(),
+        id: '',
+        postId: postId,
+        uid: uid,
+        message: message,
+        name: user!.name,
+        username: user.username,
+      );
+
+      Map<String, dynamic>newCommentMap = newComment.toMap();
+      await _db.collection('Comments').add(newCommentMap);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> deleteCommentInFirebase(String commentId) async {
+    try {
+      await _db.collection('Comments').doc(commentId).delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<List<Comment>> getCommentFromFirebase(String postId) async {
+    try {
+      QuerySnapshot snapshot = await _db.collection('Comments').where(
+          'postId', isEqualTo: postId).get();
+      return snapshot.docs.map((doc)=>Comment.fromDocument(doc)).toList();
+    }catch(e){
+      print(e);
+      return [];
     }
   }
 }
