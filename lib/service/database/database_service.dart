@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:twitterclone/models/post.dart';
@@ -133,7 +134,7 @@ class DatabaseService {
         username: user.username,
       );
 
-      Map<String, dynamic>newCommentMap = newComment.toMap();
+      Map<String, dynamic> newCommentMap = newComment.toMap();
       await _db.collection('Comments').add(newCommentMap);
     } catch (e) {
       print(e);
@@ -150,12 +151,56 @@ class DatabaseService {
 
   Future<List<Comment>> getCommentFromFirebase(String postId) async {
     try {
-      QuerySnapshot snapshot = await _db.collection('Comments').where(
-          'postId', isEqualTo: postId).get();
-      return snapshot.docs.map((doc)=>Comment.fromDocument(doc)).toList();
-    }catch(e){
+      QuerySnapshot snapshot = await _db
+          .collection('Comments')
+          .where('postId', isEqualTo: postId)
+          .get();
+      return snapshot.docs.map((doc) => Comment.fromDocument(doc)).toList();
+    } catch (e) {
       print(e);
       return [];
     }
+  }
+
+  Future<void> reportUserInFirebase(String postId, userId) async {
+    final currentUserId = _auth.currentUser!.uid;
+    final report = {
+      'reportedBy': currentUserId,
+      'messageId': postId,
+      'messageOwnerId': userId,
+      'timestamp': FieldValue.serverTimestamp(),
+    };
+    await _db.collection("Reports").add(report);
+  }
+
+  Future<void> blockUserInFirebase(String userId) async {
+    final currentUserId = _auth.currentUser!.uid;
+    await _db
+        .collection("Users")
+        .doc(currentUserId)
+        .collection('BlockedUsers')
+        .doc(userId)
+        .set({});
+  }
+
+  Future<void> unblockUserInFirebase(String blockedUserId) async {
+    final currentUserId = _auth.currentUser!.uid;
+    await _db
+        .collection('Users')
+        .doc(currentUserId)
+        .collection('BlockedUsers')
+        .doc(blockedUserId)
+        .delete();
+  }
+
+  Future<List<String>> getBlockedUidsFromFirebase() async {
+    final currentUserId = _auth.currentUser!.uid;
+
+    final snapshot = await _db
+        .collection('Users')
+        .doc(currentUserId)
+        .collection('BlockedUsers')
+        .get();
+    return snapshot.docs.map((doc) => doc.id).toList();
   }
 }

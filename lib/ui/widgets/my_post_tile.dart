@@ -33,6 +33,7 @@ class _MyPostTileState extends State<MyPostTile> {
     super.initState();
     _loadComments();
   }
+
   void _showOptions() {
     String currentId = AuthService().getCurrentUid();
     final bool isOwnPost = widget.post.uid == currentId;
@@ -58,14 +59,18 @@ class _MyPostTileState extends State<MyPostTile> {
                     ),
                   )
                 else ...[
-                  const ListTile(
-                    leading: Icon(
+                  ListTile(
+                    leading: const Icon(
                       Icons.flag,
                     ),
-                    title: Text(
+                    title: const Text(
                       'Report',
                       style: TextStyle(),
                     ),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      _reportPostConfirmationBox();
+                    },
                   ),
                   const ListTile(
                     leading: Icon(
@@ -95,6 +100,40 @@ class _MyPostTileState extends State<MyPostTile> {
         });
   }
 
+  void _reportPostConfirmationBox() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Report Message'),
+            content: const Text('Are you sure you want to report this message?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await databaseProvider.reportUser(
+                    widget.post.id,
+                    widget.post.uid,
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Message reported'),
+                      
+                    ),
+                  );
+                },
+                child: const Text('Report'),
+              ),
+            ],
+          );
+        });
+  }
+
   void _openNewCommentBox() {
     showDialog(
       context: context,
@@ -119,7 +158,8 @@ class _MyPostTileState extends State<MyPostTile> {
       print(e);
     }
   }
-  Future<void> _loadComments()async{
+
+  Future<void> _loadComments() async {
     await databaseProvider.loadComments(widget.post.id);
   }
 

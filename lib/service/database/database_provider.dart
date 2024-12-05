@@ -44,8 +44,9 @@ class DatabaseProvider extends ChangeNotifier {
 
   List<String> _likedPosts = [];
 
-  bool isPostLikedByCurrentUser(String postId)=> _likedPosts.contains(postId);
-  int getLikeCount(String postId)=>_likeCounts[postId]??0;
+  bool isPostLikedByCurrentUser(String postId) => _likedPosts.contains(postId);
+
+  int getLikeCount(String postId) => _likeCounts[postId] ?? 0;
 
   void initializeLikeMap() {
     final currentUserId = _auth.getCurrentUid();
@@ -61,48 +62,76 @@ class DatabaseProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> toggleLike(String postId) async {
+    final likedPostOriginal = _likedPosts;
+    final likeCountsOriginal = _likeCounts;
 
-  Future<void> toggleLike(String postId)async{
-
-
-    final likedPostOriginal=_likedPosts;
-    final likeCountsOriginal=_likeCounts;
-
-    if(_likedPosts.contains(postId)){
+    if (_likedPosts.contains(postId)) {
       _likedPosts.remove(postId);
-      _likeCounts[postId]=(_likeCounts[postId]??0)-1;
-    }else{
+      _likeCounts[postId] = (_likeCounts[postId] ?? 0) - 1;
+    } else {
       _likedPosts.add(postId);
-      _likeCounts[postId]=(_likeCounts[postId]??0)+1;
+      _likeCounts[postId] = (_likeCounts[postId] ?? 0) + 1;
     }
     notifyListeners();
 
-    try{
+    try {
       await _db.toggleLikeInFirebase(postId);
-    }
-    catch(e){
-      _likedPosts=likedPostOriginal;
-      _likeCounts=likeCountsOriginal;
+    } catch (e) {
+      _likedPosts = likedPostOriginal;
+      _likeCounts = likeCountsOriginal;
       notifyListeners();
     }
   }
 
+  final Map<String, List<Comment>> _comments = {};
 
-  final Map<String,List<Comment>> _comments={};
-  List<Comment> getComments(String postId)=>_comments[postId]??[];
-  Future<void>loadComments(String postId)async{
-    final allComments=await _db.getCommentFromFirebase(postId);
-    _comments[postId]=allComments;
+  List<Comment> getComments(String postId) => _comments[postId] ?? [];
+
+  Future<void> loadComments(String postId) async {
+    final allComments = await _db.getCommentFromFirebase(postId);
+    _comments[postId] = allComments;
     notifyListeners();
   }
 
-  Future<void> addComment(String postId,message)async{
+  Future<void> addComment(String postId, message) async {
     await _db.addCommentInFirebase(postId, message);
     await loadComments(postId);
   }
-  Future<void> deleteComment(String commentId,postId)async{
+
+  Future<void> deleteComment(String commentId, postId) async {
     await _db.deleteCommentInFirebase(commentId);
     await loadComments(postId);
   }
 
+  List<UserProfile> _blockedUsers = [];
+
+  List<UserProfile> get blockedUsers => _blockedUsers;
+
+  Future<void> loadAllBlockedUsers() async {
+    final blockedUsersId = await _db.getBlockedUidsFromFirebase();
+    final blockedUsersData = await Future.wait(
+      blockedUsersId.map(
+        (id) => _db.getUserFromFirebase(id),
+      ),
+    );
+    _blockedUsers = blockedUsersData.whereType<UserProfile>().toList();
+    notifyListeners();
+  }
+
+  Future<void> blockUsers(String userId) async {
+    await _db.blockUserInFirebase(userId);
+    await loadAllPosts();
+    notifyListeners();
+  }
+
+  Future<void> unblockUsers(String blockedUserId)async{
+    await _db.unblockUserInFirebase(blockedUserId);
+    await loadAllBlockedUsers();
+    await loadAllPosts();
+    notifyListeners();
+  }
+  Future<void> reportUser(String postId,userId)async{
+    await _db.reportUserInFirebase(postId, userId);
+  }
 }
