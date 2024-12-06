@@ -25,6 +25,10 @@ class DatabaseProvider extends ChangeNotifier {
 
   Future<void> loadAllPosts() async {
     final allPosts = await _db.getAllPostsFromFirebase();
+
+    final blockedUserIds=await _db.getBlockedUidsFromFirebase();
+    _allPosts=allPosts.where((post)=>!blockedUserIds.contains(post.uid)).toList();
+
     _allPosts = allPosts;
     initializeLikeMap();
 

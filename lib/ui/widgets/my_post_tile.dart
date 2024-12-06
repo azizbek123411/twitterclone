@@ -72,15 +72,19 @@ class _MyPostTileState extends State<MyPostTile> {
                       _reportPostConfirmationBox();
                     },
                   ),
-                  const ListTile(
-                    leading: Icon(
-                      Icons.block,
-                    ),
-                    title: Text(
-                      'Block User',
-                      style: TextStyle(),
-                    ),
-                  ),
+                  //  ListTile(
+                  //   onTap: (){
+                  //     Navigator.pop(context);
+                  //     _blockUserConfirmationBox();
+                  //   },
+                  //   leading: const Icon(
+                  //     Icons.block,
+                  //   ),
+                  //   title: const Text(
+                  //     'Block User',
+                  //     style: TextStyle(),
+                  //   ),
+                  // ),
                 ],
                 ListTile(
                   onTap: () {
@@ -134,6 +138,36 @@ class _MyPostTileState extends State<MyPostTile> {
         });
   }
 
+  void _blockUserConfirmationBox() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Block User'),
+            content: const Text('Are you sure you want to block this user?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await databaseProvider.blockUsers(widget.post.uid);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User blocked'),
+
+                    ),
+                  );
+                },
+                child: const Text('Block'),
+              ),
+            ],
+          );
+        });
+  }
   void _openNewCommentBox() {
     showDialog(
       context: context,

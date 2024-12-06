@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:twitterclone/models/post.dart';
 import 'package:twitterclone/ui/pages/drawer_screens/profile.dart';
 
+import '../ui/pages/drawer_screens/blocked_users.dart';
 import '../ui/pages/home/post_page.dart';
 
 void goUserPage(BuildContext context, String uid) {
@@ -20,6 +21,15 @@ void goPostPage(BuildContext context, Post post) {
       builder: (context) => PostPage(
         post: post,
       ),
+    ),
+  );
+}
+
+void goToBlockedUsersPage(BuildContext context){
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const BlockedUsersPage()
     ),
   );
 }
