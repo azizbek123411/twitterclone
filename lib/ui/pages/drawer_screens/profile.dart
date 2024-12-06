@@ -131,6 +131,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
+
+
+                if(user != null&&user!.uid==currentUserId)
                 IconButton(
                   onPressed: _showEditBioBox,
                   icon: Icon(

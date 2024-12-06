@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:twitterclone/models/post.dart';
@@ -202,5 +201,44 @@ class DatabaseService {
         .collection('BlockedUsers')
         .get();
     return snapshot.docs.map((doc) => doc.id).toList();
+  }
+
+  Future<void> deleteUserInfoFromFirebase(String uid) async {
+    WriteBatch batch = _db.batch();
+    DocumentReference userDoc = _db.collection('Users').doc(uid);
+
+    batch.delete(userDoc);
+    QuerySnapshot userPosts =
+        await _db.collection("Posts").where('uid', isEqualTo: uid).get();
+
+    for (var post in userPosts.docs) {
+      batch.delete(post.reference);
+    }
+
+    QuerySnapshot userComments =
+        await _db.collection("Comments").where('uid', isEqualTo: uid).get();
+    for (var comments in userComments.docs) {
+      batch.delete(comments.reference);
+    }
+
+
+    QuerySnapshot allPosts=await _db.collection("Posts").get();
+    for(QueryDocumentSnapshot post in allPosts.docs){
+      Map<String,dynamic> postData=post.data() as Map<String,dynamic>;
+      var likedBy=postData['likedBy'] as List<dynamic>? ??[];
+
+      if(likedBy.contains(uid)){
+        batch.update(post.reference, {
+          'likedBy':FieldValue.arrayRemove([uid]),
+          'likes':FieldValue.increment(-1),
+        });
+      }
+    }
+
+
+    await batch.commit();
+
+
+
   }
 }

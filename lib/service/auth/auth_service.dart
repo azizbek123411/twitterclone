@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:twitterclone/service/database/database_service.dart';
 
 class AuthService {
   final _auth = FirebaseAuth.instance;
@@ -43,5 +44,12 @@ class AuthService {
   }
 
   /// DELETE METHOD
+Future<void> deleteAccount()async{
+    User? user=getCurrentUser();
+    if(user != null){
+      await DatabaseService().deleteUserInfoFromFirebase(user.uid);
+      await user.delete();
+    }
+}
 
 }
