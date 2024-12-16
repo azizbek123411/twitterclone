@@ -5,7 +5,9 @@ import 'package:twitterclone/service/auth/auth_service.dart';
 import 'package:twitterclone/service/database/database_provider.dart';
 import 'package:twitterclone/ui/widgets/input_alert_box.dart';
 import 'package:twitterclone/ui/widgets/my_bio_box.dart';
+import 'package:twitterclone/ui/widgets/my_follower_button.dart';
 import 'package:twitterclone/ui/widgets/my_post_tile.dart';
+import 'package:twitterclone/ui/widgets/my_profile_stats.dart';
 import 'package:twitterclone/utility/app_padding.dart';
 import 'package:twitterclone/utility/navigate_pages.dart';
 import 'package:twitterclone/utility/screen_utils.dart';
@@ -20,6 +22,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool isFollowing = false;
+
   final bioTextController = TextEditingController();
   late final listeningProvider = Provider.of<DatabaseProvider>(context);
   late final databaseProvider =
@@ -40,6 +44,10 @@ class _ProfilePageState extends State<ProfilePage> {
     user = await databaseProvider.userProfile(
       widget.uid,
     );
+    await databaseProvider.loadUsersFollowers(widget.uid);
+    await databaseProvider.loadUsersFollowing(widget.uid);
+    isFollowing = databaseProvider.isFollowing(widget.uid);
+
     setState(() {
       isLoading = false;
     });
@@ -71,11 +79,51 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  Future<void> toggleFollow() async {
+    if (isFollowing) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Unfollow'),
+              content: const Text("Are you sure want to unfollow"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await databaseProvider.unfollowUser(widget.uid);
+                  },
+                  child: Text(
+                    "Unfollow",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ],
+            );
+          });
+    } else {
+      await databaseProvider.followUser(widget.uid);
+    }
+    setState(() {
+      isFollowing = !isFollowing;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    isFollowing = listeningProvider.isFollowing(widget.uid);
+
     final allUserPosts = listeningProvider.filterUserPosts(
       widget.uid,
     );
+    final followerCount = listeningProvider.getFollowerCount(widget.uid);
+    final followingCount = listeningProvider.getFollowingCount(widget.uid);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -119,6 +167,16 @@ class _ProfilePageState extends State<ProfilePage> {
           SizedBox(
             height: 30.h,
           ),
+          MyProfileStats(
+            followerCount: followerCount,
+            followingCount: followingCount,
+            postCount: allUserPosts.length,
+          ),
+          if (user != null && user!.uid != currentUserId)
+            MyFollowerButton(
+              onTap: toggleFollow,
+              isFollowing: isFollowing,
+            ),
           Padding(
             padding: Dis.only(lr: 20.w),
             child: Row(
@@ -131,16 +189,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-
-
-                if(user != null&&user!.uid==currentUserId)
-                IconButton(
-                  onPressed: _showEditBioBox,
-                  icon: Icon(
-                    Icons.edit,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                )
+                if (user != null && user!.uid == currentUserId)
+                  IconButton(
+                    onPressed: _showEditBioBox,
+                    icon: Icon(
+                      Icons.edit,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
               ],
             ),
           ),
