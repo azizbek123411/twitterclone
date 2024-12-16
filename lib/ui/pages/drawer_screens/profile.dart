@@ -12,6 +12,8 @@ import 'package:twitterclone/utility/app_padding.dart';
 import 'package:twitterclone/utility/navigate_pages.dart';
 import 'package:twitterclone/utility/screen_utils.dart';
 
+import 'follow_list_page.dart';
+
 class ProfilePage extends StatefulWidget {
   final String uid;
 
@@ -99,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Navigator.pop(context);
                     await databaseProvider.unfollowUser(widget.uid);
                   },
-                  child: Text(
+                  child: const Text(
                     "Unfollow",
                     style: TextStyle(color: Colors.blue),
                   ),
@@ -171,6 +173,14 @@ class _ProfilePageState extends State<ProfilePage> {
             followerCount: followerCount,
             followingCount: followingCount,
             postCount: allUserPosts.length,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FollowingListPage(
+                  uid: widget.uid,
+                ),
+              ),
+            ),
           ),
           if (user != null && user!.uid != currentUserId)
             MyFollowerButton(
